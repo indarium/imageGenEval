@@ -4,12 +4,17 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * author: cvandrei
  * since: 2016-05-11
  */
 public final class PixelUtil {
+
+    private PixelUtil() {
+    }
 
     /**
      * Convert a 6x1 pixel png image based on an etag.
@@ -52,7 +57,20 @@ public final class PixelUtil {
         if (etag == null) throw new NullPointerException("etag may not be null");
         if (out == null) throw new NullPointerException("out may not be null");
 
-        // TODO convert etag to RGB pixels
+        /*
+         * etag = "406161ad525c9bdf02a21db721f2ffeb"
+         *
+         * 406161
+         * ad525c
+         * 9bdf02
+         * a21db7
+         * 21f2ff
+         * eb
+         */
+
+        final List<Pixel> pixelList = etagToPixel(etag);
+        // TODO iterate over pixelList to create image
+
         final int r = 110;
         final int g = 223;
         final int b = 103;
@@ -75,6 +93,41 @@ public final class PixelUtil {
         } finally {
             out.flush();
         }
+
+    }
+
+    public static List<Pixel> etagToPixel(final String etag) {
+
+        final String[] array = etag.split("");
+        final List<Pixel> l = new ArrayList<>();
+
+        String value = "";
+        for (String s : array) {
+
+            value += s;
+            if (value.length() == 6) {
+                addPixel(value.toUpperCase(), l);
+                value = "";
+            }
+
+        }
+
+        if (value.length() > 0) {
+            final String padded = StringUtil.padRight(value, 6);
+            addPixel(padded, l);
+        }
+
+        return l;
+
+    }
+
+    private static Pixel addPixel(final String s, final List<Pixel> l) {
+
+        final String hexString = s.startsWith("0x") ? s : "0x" + s;
+        final Pixel p = new Pixel(hexString);
+        l.add(p);
+
+        return p;
 
     }
 
