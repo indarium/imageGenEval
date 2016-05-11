@@ -12,18 +12,23 @@ import java.io.OutputStream;
 public final class PixelUtil {
 
     /**
-     * Generate a 6x1 pixel png image for us. The color is
+     * Convert a 6x1 pixel png image based on an etag.
      *
-     * @param r   red value
-     * @param g   green value
-     * @param b   blue value
-     * @param out stream the generated image is written to
-     * @throws IOException something failed
+     * @param etag not null
+     * @param out  stream the generated image is written to
+     * @throws NullPointerException invalid input
+     * @throws IOException          something failed
      */
-    public static final void create(final int r,
-                                    final int g,
-                                    final int b,
-                                    final OutputStream out) throws IOException {
+    public static void create(final String etag,
+                              final OutputStream out) throws IOException {
+
+        if (etag == null) throw new NullPointerException("etag may not be null");
+        if (out == null) throw new NullPointerException("out may not be null");
+
+        // TODO convert etag to RGB pixels
+        final int r = 110;
+        final int g = 223;
+        final int b = 103;
 
         try {
 
@@ -41,12 +46,7 @@ public final class PixelUtil {
             ImageIO.write(image, "png", out);
 
         } finally {
-
-            if (out != null) {
-                out.flush();
-                out.close();
-            }
-
+            out.flush();
         }
 
     }
