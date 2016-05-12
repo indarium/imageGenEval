@@ -1,9 +1,9 @@
 package actor
 
 import akka.actor.Actor
-import spray.http.MediaTypes
-import spray.routing.HttpService
-import MediaTypes._
+import spray.http.HttpHeader
+import spray.http.MediaTypes._
+import spray.routing.{HttpService, Route}
 
 /**
   * author: cvandrei
@@ -13,21 +13,41 @@ class EtagServiceActor extends Actor with EtagService {
 
   def actorRefFactory = context
 
-  def receive = runRoute(etagRoutes)
+  def receive = runRoute(routes)
 
 }
 
 trait EtagService extends HttpService {
 
-  val etagRoutes =
-    path("") {
-      get {
-        respondWithMediaType(`application/json`) {
-          complete {
-            """{status: "ok"}"""
-          }
-        }
+  /********* PARTIAL MATCHERS *********/
+
+  private val headers = extract(_.request.headers)
+
+  /********* PATH MATCHERS *********/
+
+  private val indexGetHeaders = path("") & get & headers
+
+  /********* PARTIAL ROUTES *********/
+
+  private def indexResponse(headers: List[HttpHeader]): Route = {
+
+    respondWithMediaType(`application/json`) {
+      complete {
+        s"""{
+            |  {status: "ok"},
+            |  {method: "GET"},
+            |  {headerCount: ${headers.size}}
+            |}""".stripMargin
       }
+    }
+
+  }
+
+  /********* ROUTING *********/
+
+  val routes: Route =
+    indexGetHeaders { headers =>
+      indexResponse(headers)
     }
 
 }
