@@ -3,6 +3,7 @@ package actor
 import akka.actor.ActorRefFactory
 import org.specs2.mutable.Specification
 import spray.http.StatusCodes._
+import spray.http.HttpHeaders._
 import spray.testkit.Specs2RouteTest
 
 /**
@@ -15,20 +16,23 @@ class EtagServiceSpec extends Specification with Specs2RouteTest with EtagServic
 
   "EtagService" should {
 
-    "return a greeting for GET requests to the root path" in {
-      Get() ~> etagRoutes ~> check {
-        responseAs[String] must_== """{status: "ok"}"""
+    """return status: "ok" for GET requests to the root path""" in {
+      Get().withHeaders(ETag("406161ad525c9bdf02a21db721f2ffeb")) ~> routes ~> check {
+        status === OK
+        responseAs[String] must contain("""{status: "ok"}""")
+        responseAs[String] must contain("""{method: "GET"}""")
+        responseAs[String] must contain("""{headerCount: 1}""")
       }
     }
 
     "leave GET requests to other paths unhandled" in {
-      Get("/unhandled") ~> etagRoutes ~> check {
+      Get("/unhandled") ~> routes ~> check {
         handled must beFalse
       }
     }
 
     "return a MethodNotAllowed error for PUT requests to the root path" in {
-      Put() ~> sealRoute(etagRoutes) ~> check {
+      Put() ~> sealRoute(routes) ~> check {
         status === MethodNotAllowed
         responseAs[String] === "HTTP method not allowed, supported methods: GET"
       }
