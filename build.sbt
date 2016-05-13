@@ -24,6 +24,9 @@ lazy val root = (project in file(".")).
 //        "io.kamon"            %% "kamon-datadog"  % kamonV,
         "io.spray"            %%  "spray-can"     % sprayV,
         "io.spray"            %%  "spray-routing" % sprayV,
+//        "io.spray"            %%  "spray-json"    % "1.3.2",
+        // -- json --
+        "org.json4s"         %% "json4s-jackson" % "3.2.10",
         "io.spray"            %%  "spray-testkit" % sprayV  % "test",
         "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
         "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
